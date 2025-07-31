@@ -12,15 +12,19 @@ import {
   TrendingUp,
   MessageCircle,
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  ChevronLeft,
   Plus,
+  Zap,
+  Target,
+  Award,
 } from "lucide-react"
+import { AddSessionFlow } from "./add-session-flow"
 
 export function TrainerDashboard() {
   const [weekExpanded, setWeekExpanded] = useState(false)
   const [calendarExpanded, setCalendarExpanded] = useState(false)
+  const [currentView, setCurrentView] = useState<{ type: string; sessionId?: number; step?: string }>({
+    type: "dashboard",
+  })
 
   const todaySessions = [
     {
@@ -57,120 +61,153 @@ export function TrainerDashboard() {
     { client: "Lisa M.", time: "Friday 5:00 PM", service: "Yoga" },
   ]
 
+  if (currentView.type === "add-session") {
+    return (
+      <AddSessionFlow
+        initialStep={currentView.step || "client-selection"}
+        onBack={() => setCurrentView({ type: "dashboard" })}
+        onComplete={(sessionData) => {
+          setCurrentView({ type: "dashboard" })
+        }}
+      />
+    )
+  }
+
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
       {/* Header */}
-      <div className="pt-8">
-        <h1 className="text-2xl font-semibold text-gray-900">Good morning, Sarah!</h1>
-        <p className="text-gray-600 mt-1">You have 3 sessions today</p>
+      <div className="pt-8 animate-in slide-in-from-top duration-500">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Good morning, Sarah! ☀️</h1>
+              <p className="text-blue-100 mt-1">You have 3 sessions today</p>
+            </div>
+            <div className="text-right">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3">
+                <Award className="h-8 w-8 text-yellow-300 mx-auto" />
+                <p className="text-xs mt-1">4.9 ⭐</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Week/Month Calendar */}
-      <Card className="border-0 shadow-sm">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-3 animate-in slide-in-from-bottom duration-500 delay-100">
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardContent className="pt-4 pb-4 text-center">
+            <div className="flex items-center justify-center space-x-1">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              <span className="text-xl font-bold text-green-700">$140</span>
+            </div>
+            <p className="text-xs text-green-600 mt-1">Today</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-blue-50 to-cyan-50">
+          <CardContent className="pt-4 pb-4 text-center">
+            <div className="flex items-center justify-center space-x-1">
+              <Target className="h-5 w-5 text-blue-600" />
+              <span className="text-xl font-bold text-blue-700">3</span>
+            </div>
+            <p className="text-xs text-blue-600 mt-1">Sessions</p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardContent className="pt-4 pb-4 text-center">
+            <div className="flex items-center justify-center space-x-1">
+              <TrendingUp className="h-5 w-5 text-purple-600" />
+              <span className="text-xl font-bold text-purple-700">83%</span>
+            </div>
+            <p className="text-xs text-purple-600 mt-1">Goal</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Week Calendar */}
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-in slide-in-from-bottom duration-500 delay-200">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-medium">{calendarExpanded ? "November 2024" : "This Week"}</CardTitle>
+            <CardTitle className="text-lg font-medium flex items-center">
+              <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+              This Week
+            </CardTitle>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                if (calendarExpanded) {
-                  setCalendarExpanded(false)
-                } else {
-                  setWeekExpanded(!weekExpanded)
-                }
-              }}
+              onClick={() => setCurrentView({ type: "add-session", step: "client-selection" })}
+              className="bg-blue-600 text-white hover:bg-blue-700 transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
             >
-              {calendarExpanded ? (
-                <span className="text-sm">Collapse</span>
-              ) : weekExpanded ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
+              <Plus className="h-4 w-4 mr-1" />
+              Add Session
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          {!calendarExpanded ? (
-            // Existing week view
-            <>
-              <div className="flex justify-between items-center mb-4 overflow-x-auto">
-                {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, index) => (
-                  <div key={day} className="flex flex-col items-center space-y-2 flex-shrink-0 px-1">
-                    <span className="text-xs text-gray-600">{day}</span>
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${
-                        index === 2 ? "bg-blue-600 text-white" : "text-gray-700"
-                      }`}
-                    >
-                      {13 + index}
-                    </div>
-                    <div className="flex space-x-0.5">
-                      {index === 2 && (
-                        <>
-                          <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                          <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                          <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                        </>
-                      )}
-                      {index === 1 && <div className="w-1 h-1 bg-gray-400 rounded-full"></div>}
-                      {index === 3 && (
-                        <>
-                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                          <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 bg-transparent text-xs"
-                  onClick={() => setCalendarExpanded(true)}
+          <div className="flex justify-between items-center mb-4 overflow-x-auto">
+            {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day, index) => (
+              <div key={day} className="flex flex-col items-center space-y-2 flex-shrink-0 px-1">
+                <span className="text-xs text-gray-600 font-medium">{day}</span>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-200 hover:scale-110 ${
+                    index === 2
+                      ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
                 >
-                  <Calendar className="h-3 w-3 mr-1" />
-                  Expand
-                </Button>
-                <Button size="sm" className="flex-1 text-xs">
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Session
-                </Button>
+                  {13 + index}
+                </div>
+                <div className="flex space-x-0.5">
+                  {index === 2 && (
+                    <>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
+                    </>
+                  )}
+                  {index === 1 && <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>}
+                  {index === 3 && (
+                    <>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                    </>
+                  )}
+                </div>
               </div>
-            </>
-          ) : (
-            // Expanded month view
-            <ExpandedCalendarView onCollapse={() => setCalendarExpanded(false)} />
-          )}
+            ))}
+          </div>
         </CardContent>
       </Card>
 
       {/* Today's Sessions */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-in slide-in-from-bottom duration-500 delay-300">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center">
+            <Zap className="h-5 w-5 mr-2 text-orange-600" />
             Today's Sessions
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-700">
               3
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {todaySessions.map((session) => (
-            <div key={session.id} className="p-3 rounded-lg border border-gray-100 bg-white space-y-3">
-              {/* Session Header */}
+          {todaySessions.map((session, index) => (
+            <div
+              key={session.id}
+              className="p-4 rounded-xl border border-gray-100 bg-gradient-to-r from-white to-gray-50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group animate-in slide-in-from-left duration-300"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <div className="flex items-center space-x-3">
-                <Avatar className="h-10 w-10 flex-shrink-0">
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{session.avatar}</AvatarFallback>
+                <Avatar className="h-12 w-12 transition-transform duration-200 group-hover:scale-110">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-blue-700 font-semibold">
+                    {session.avatar}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 flex-wrap">
-                    <span className="text-sm font-medium text-gray-900">{session.time}</span>
+                    <span className="text-sm font-semibold text-gray-900">{session.time}</span>
                     <span className="text-sm text-gray-600">{session.client}</span>
-                    <span className="text-sm font-medium text-gray-900">${session.price}</span>
+                    <span className="text-sm font-semibold text-green-600">${session.price}</span>
                   </div>
                   <div className="flex items-center space-x-2 mt-1 flex-wrap">
                     <span className="text-sm text-gray-600">{session.service}</span>
@@ -190,34 +227,57 @@ export function TrainerDashboard() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex space-x-2 w-full">
+              <div className="flex space-x-2 mt-3">
                 {session.status === "completed" ? (
                   <>
-                    <Button variant="ghost" size="sm" className="flex-1 text-xs">
-                      <MessageCircle className="h-3 w-3 mr-1" />
-                      Chat
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-xs hover:bg-green-50 hover:text-green-700 transition-all duration-200 hover:scale-105"
+                    >
+                      <CheckCircle2 className="h-3 w-3 mr-1" />
+                      View Summary
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex-1 text-xs">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-xs hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 hover:scale-105"
+                    >
                       Notes
                     </Button>
                   </>
                 ) : session.status === "starting-soon" ? (
                   <>
-                    <Button variant="outline" size="sm" className="flex-1 text-xs bg-transparent">
-                      Mark Complete
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 hover:from-orange-600 hover:to-red-600 transition-all duration-200 hover:scale-105 shadow-lg"
+                    >
+                      Start Session
                     </Button>
-                    <Button variant="ghost" size="sm" className="px-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-3 hover:bg-blue-50 transition-all duration-200 hover:scale-105"
+                    >
                       <MessageCircle className="h-4 w-4" />
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" size="sm" className="flex-1 text-xs">
-                      Pre-Session Chat
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-xs hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 hover:scale-105"
+                    >
+                      View Details
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex-1 text-xs">
-                      Details
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-xs hover:bg-purple-50 hover:text-purple-700 transition-all duration-200 hover:scale-105"
+                    >
+                      Pre-Chat
                     </Button>
                   </>
                 )}
@@ -228,339 +288,89 @@ export function TrainerDashboard() {
       </Card>
 
       {/* Pending Requests */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-in slide-in-from-bottom duration-500 delay-400">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium flex items-center">
+            <Clock className="h-5 w-5 mr-2 text-purple-600" />
             Pending Requests
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-700">
               2
             </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {pendingRequests.map((request, index) => (
-            <div key={index} className="p-3 rounded-lg border border-gray-100 bg-white space-y-3">
+            <div
+              key={index}
+              className="p-4 rounded-xl border border-gray-100 bg-gradient-to-r from-white to-purple-50 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-in slide-in-from-right duration-300"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <span className="text-sm font-medium text-gray-900 block">{request.client}</span>
+                  <span className="text-sm font-semibold text-gray-900 block">{request.client}</span>
                   <p className="text-sm text-gray-600 mt-1">{request.time}</p>
-                  <p className="text-xs text-gray-500 mt-1">{request.service}</p>
+                  <p className="text-xs text-purple-600 mt-1 font-medium">{request.service}</p>
                 </div>
               </div>
-              <div className="flex space-x-2 w-full">
-                <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+              <div className="flex space-x-2 mt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 bg-transparent hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-all duration-200 hover:scale-105"
+                >
                   Decline
                 </Button>
-                <Button size="sm" className="flex-1">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 transition-all duration-200 hover:scale-105 shadow-lg"
+                >
                   Accept
                 </Button>
               </div>
             </div>
           ))}
-          <Button variant="ghost" className="w-full text-sm">
-            View All Requests
-          </Button>
         </CardContent>
       </Card>
 
       {/* Financial Overview */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 animate-in slide-in-from-bottom duration-500 delay-500">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Financial Overview</CardTitle>
+          <CardTitle className="text-lg font-medium flex items-center">
+            <DollarSign className="h-5 w-5 mr-2 text-green-600" />
+            Financial Overview
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Today</p>
-              <p className="text-xl font-semibold text-gray-900">$140</p>
-              <p className="text-xs text-gray-500">2/3 completed</p>
+            <div className="space-y-1 p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
+              <p className="text-sm text-green-700 font-medium">Today</p>
+              <p className="text-xl font-bold text-green-800">$140</p>
+              <p className="text-xs text-green-600">2/3 completed</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">This Week</p>
-              <p className="text-xl font-semibold text-gray-900">$485</p>
-              <p className="text-xs text-gray-500">6 sessions</p>
+            <div className="space-y-1 p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl">
+              <p className="text-sm text-blue-700 font-medium">This Week</p>
+              <p className="text-xl font-bold text-blue-800">$485</p>
+              <p className="text-xs text-blue-600">6 sessions</p>
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Monthly Goal</span>
-              <span className="font-medium">$1,650 / $2,000</span>
+              <span className="text-purple-700 font-medium">Monthly Goal</span>
+              <span className="font-semibold text-purple-800">$1,650 / $2,000</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: "83%" }}></div>
+            <div className="w-full bg-purple-200 rounded-full h-3 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out"
+                style={{ width: "83%" }}
+              ></div>
             </div>
-            <p className="text-xs text-gray-500 flex items-center">
+            <p className="text-xs text-purple-600 flex items-center font-medium">
               <TrendingUp className="h-3 w-3 mr-1" />
-              83% of goal reached
+              83% of goal reached - You're doing great! 🎉
             </p>
           </div>
-          <Button variant="outline" className="w-full bg-transparent">
-            <DollarSign className="h-4 w-4 mr-2" />
-            View Financial Dashboard
-          </Button>
         </CardContent>
       </Card>
-    </div>
-  )
-}
-
-// Replace the existing ExpandedCalendarView component with this full implementation
-function ExpandedCalendarView({ onCollapse }: { onCollapse: () => void }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 10)) // November 2024
-  const [selectedDate, setSelectedDate] = useState<number | null>(15) // Today is 15th
-
-  // Sample session data for the month
-  const sessionData: Record<
-    number,
-    Array<{
-      time: string
-      client: string
-      service: string
-      price: number
-      status: "completed" | "upcoming" | "starting-soon"
-      avatar: string
-    }>
-  > = {
-    12: [{ time: "10:00 AM", client: "Emma L.", service: "Yoga", price: 65, status: "completed", avatar: "EL" }],
-    14: [
-      { time: "2:00 PM", client: "Mike R.", service: "HIIT", price: 80, status: "completed", avatar: "MR" },
-      { time: "6:00 PM", client: "Sarah K.", service: "Core", price: 75, status: "completed", avatar: "SK" },
-    ],
-    15: [
-      { time: "10:00 AM", client: "Emma L.", service: "Yoga", price: 65, status: "completed", avatar: "EL" },
-      { time: "2:00 PM", client: "John D.", service: "Strength", price: 75, status: "starting-soon", avatar: "JD" },
-      { time: "6:00 PM", client: "Sarah K.", service: "HIIT", price: 80, status: "upcoming", avatar: "SK" },
-    ],
-    16: [
-      { time: "9:00 AM", client: "Lisa M.", service: "Pilates", price: 70, status: "upcoming", avatar: "LM" },
-      { time: "4:00 PM", client: "Mike R.", service: "Strength", price: 80, status: "upcoming", avatar: "MR" },
-    ],
-    18: [{ time: "11:00 AM", client: "Emma L.", service: "Yoga", price: 65, status: "upcoming", avatar: "EL" }],
-    20: [
-      { time: "3:00 PM", client: "Sarah K.", service: "HIIT", price: 80, status: "upcoming", avatar: "SK" },
-      { time: "7:00 PM", client: "John D.", service: "Strength", price: 75, status: "upcoming", avatar: "JD" },
-    ],
-    22: [{ time: "10:00 AM", client: "Lisa M.", service: "Yoga", price: 65, status: "upcoming", avatar: "LM" }],
-  }
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const daysInMonth = lastDay.getDate()
-    const startingDayOfWeek = firstDay.getDay()
-
-    return { daysInMonth, startingDayOfWeek: startingDayOfWeek === 0 ? 7 : startingDayOfWeek }
-  }
-
-  const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth)
-  const monthName = currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    setCurrentMonth((prev) => {
-      const newMonth = new Date(prev)
-      if (direction === "prev") {
-        newMonth.setMonth(prev.getMonth() - 1)
-      } else {
-        newMonth.setMonth(prev.getMonth() + 1)
-      }
-      return newMonth
-    })
-    setSelectedDate(null)
-  }
-
-  const getDayEarnings = (day: number) => {
-    const sessions = sessionData[day] || []
-    return sessions.reduce((total, session) => {
-      return session.status === "completed" ? total + session.price : total
-    }, 0)
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* Month Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth("prev")}>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <h3 className="text-lg font-semibold text-gray-900">{monthName}</h3>
-        <Button variant="ghost" size="sm" onClick={() => navigateMonth("next")}>
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {/* Calendar Grid */}
-      <div className="space-y-2">
-        {/* Day Headers */}
-        <div className="grid grid-cols-7 gap-1">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-            <div key={day} className="text-center text-xs font-medium text-gray-600 py-2">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-1">
-          {/* Empty cells for days before month starts */}
-          {Array.from({ length: startingDayOfWeek - 1 }).map((_, index) => (
-            <div key={`empty-${index}`} className="h-12"></div>
-          ))}
-
-          {/* Days of the month */}
-          {Array.from({ length: daysInMonth }).map((_, index) => {
-            const day = index + 1
-            const isToday = day === 15 // Current day
-            const isSelected = selectedDate === day
-            const sessions = sessionData[day] || []
-            const earnings = getDayEarnings(day)
-
-            return (
-              <div
-                key={day}
-                className={`h-12 border rounded-lg cursor-pointer transition-colors relative ${
-                  isSelected
-                    ? "border-blue-500 bg-blue-50"
-                    : isToday
-                      ? "border-blue-300 bg-blue-25"
-                      : sessions.length > 0
-                        ? "border-gray-200 bg-gray-50 hover:bg-gray-100"
-                        : "border-gray-100 hover:bg-gray-50"
-                }`}
-                onClick={() => setSelectedDate(day)}
-              >
-                <div className="p-1 h-full flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-xs font-medium ${isToday ? "text-blue-600" : "text-gray-900"}`}>{day}</span>
-                    {sessions.length > 0 && <span className="text-[10px] text-gray-600">{sessions.length}</span>}
-                  </div>
-
-                  {/* Session indicators */}
-                  <div className="flex justify-center space-x-0.5">
-                    {sessions.slice(0, 3).map((session, idx) => (
-                      <div
-                        key={idx}
-                        className={`w-1 h-1 rounded-full ${
-                          session.status === "completed"
-                            ? "bg-green-500"
-                            : session.status === "starting-soon"
-                              ? "bg-orange-500"
-                              : "bg-blue-500"
-                        }`}
-                      />
-                    ))}
-                    {sessions.length > 3 && <div className="w-1 h-1 rounded-full bg-gray-400" />}
-                  </div>
-
-                  {/* Earnings for completed sessions */}
-                  {earnings > 0 && <div className="text-[9px] text-green-600 font-medium text-center">${earnings}</div>}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Selected Day Details */}
-      {selectedDate && sessionData[selectedDate] && (
-        <div className="bg-gray-50 rounded-lg p-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-gray-900">
-              {monthName.split(" ")[0]} {selectedDate}, {currentMonth.getFullYear()}
-            </h4>
-            <Badge variant="secondary">
-              {sessionData[selectedDate].length} session{sessionData[selectedDate].length > 1 ? "s" : ""}
-            </Badge>
-          </div>
-
-          <div className="space-y-2">
-            {sessionData[selectedDate].map((session, index) => (
-              <div key={index} className="flex items-center space-x-3 bg-white p-2 rounded border">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">{session.avatar}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-gray-900">{session.time}</span>
-                    <span className="text-sm text-gray-600">{session.client}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">{session.service}</span>
-                    <span className="text-xs font-medium text-gray-900">${session.price}</span>
-                  </div>
-                </div>
-                <div className="flex-shrink-0">
-                  {session.status === "completed" && (
-                    <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
-                      Done
-                    </Badge>
-                  )}
-                  {session.status === "starting-soon" && (
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
-                      <Clock className="h-3 w-3 mr-1" />
-                      Soon
-                    </Badge>
-                  )}
-                  {session.status === "upcoming" && (
-                    <Badge variant="outline" className="text-xs">
-                      Upcoming
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Month Summary */}
-      <div className="bg-blue-50 rounded-lg p-3 space-y-2">
-        <h4 className="font-medium text-blue-900">Month Summary</h4>
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div className="text-center">
-            <p className="text-blue-600 font-semibold">
-              {
-                Object.values(sessionData)
-                  .flat()
-                  .filter((s) => s.status === "completed").length
-              }
-            </p>
-            <p className="text-blue-700 text-xs">Completed</p>
-          </div>
-          <div className="text-center">
-            <p className="text-blue-600 font-semibold">
-              {
-                Object.values(sessionData)
-                  .flat()
-                  .filter((s) => s.status === "upcoming" || s.status === "starting-soon").length
-              }
-            </p>
-            <p className="text-blue-700 text-xs">Upcoming</p>
-          </div>
-          <div className="text-center">
-            <p className="text-green-600 font-semibold">
-              $
-              {Object.values(sessionData)
-                .flat()
-                .filter((s) => s.status === "completed")
-                .reduce((sum, s) => sum + s.price, 0)}
-            </p>
-            <p className="text-blue-700 text-xs">Earned</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex space-x-2">
-        <Button variant="outline" className="flex-1 bg-white" onClick={onCollapse}>
-          Collapse View
-        </Button>
-        <Button className="flex-1">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Session
-        </Button>
-      </div>
     </div>
   )
 }

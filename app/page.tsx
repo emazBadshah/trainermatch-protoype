@@ -8,17 +8,31 @@ import { ChatDashboard } from "@/components/chat-dashboard"
 import { ProfileDashboard } from "@/components/profile-dashboard"
 import { BottomNavigation } from "@/components/bottom-navigation"
 
-export default function TrainerMatchApp() {
-  const [activeTab, setActiveTab] = useState("dashboard")
+export default function Home() {
+  const [activeTab, setActiveTab] = useState("home")
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "home":
+        return <TrainerDashboard />
+      case "alerts":
+        return <NotificationsDashboard onBack={() => setActiveTab("home")} />
+      case "chat":
+        return <ChatDashboard onBack={() => setActiveTab("home")} />
+      case "finance":
+        return <FinancialDashboard onBack={() => setActiveTab("home")} />
+      case "profile":
+        return <ProfileDashboard onBack={() => setActiveTab("home")} />
+      default:
+        return <TrainerDashboard />
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 safe-area-pb">
-      {activeTab === "dashboard" && <TrainerDashboard />}
-      {activeTab === "notifications" && <NotificationsDashboard />}
-      {activeTab === "chat" && <ChatDashboard />}
-      {activeTab === "financial" && <FinancialDashboard />}
-      {activeTab === "profile" && <ProfileDashboard />}
-
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+      <div className="pb-20">
+        <div className="transition-all duration-300 ease-in-out">{renderContent()}</div>
+      </div>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   )

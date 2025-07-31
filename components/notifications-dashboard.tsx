@@ -5,167 +5,157 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch"
 import {
+  ArrowLeft,
   Bell,
   Calendar,
   DollarSign,
-  MessageCircle,
-  Clock,
   CheckCircle2,
+  AlertTriangle,
+  Star,
   Settings,
   Filter,
   MoreHorizontal,
-  AlertCircle,
-  X,
 } from "lucide-react"
 
-type NotificationCategory = "all" | "bookings" | "payments" | "messages" | "system"
+type NotificationCategory = "all" | "sessions" | "payments" | "reviews" | "system"
 
-export function NotificationsDashboard() {
-  const [selectedCategory, setSelectedCategory] = useState<NotificationCategory>("all")
-  const [showSettings, setShowSettings] = useState(false)
+interface NotificationsDashboardProps {
+  onBack: () => void
+}
 
-  const notifications = [
+export function NotificationsDashboard({ onBack }: NotificationsDashboardProps) {
+  const [activeCategory, setActiveCategory] = useState<NotificationCategory>("all")
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
-      type: "booking",
-      title: "New booking request",
-      message: "Alex T. wants to book a Personal Training session for tomorrow at 10:00 AM",
-      time: "2 minutes ago",
-      unread: true,
+      type: "session",
+      title: "Session starting soon",
+      message: "Your session with John D. starts in 30 minutes",
+      time: "30 min ago",
+      read: false,
       priority: "high",
-      avatar: "AT",
-      action: "booking-request",
-      data: { client: "Alex T.", service: "Personal Training", time: "Tomorrow 10:00 AM" },
+      avatar: "JD",
+      action: "View Details",
     },
     {
       id: 2,
       type: "payment",
       title: "Payment received",
-      message: "Emma L. paid $65 for Yoga session completed today",
-      time: "1 hour ago",
-      unread: true,
+      message: "Emma L. paid $65 for Yoga Session",
+      time: "2 hours ago",
+      read: false,
       priority: "medium",
       avatar: "EL",
-      action: "payment-received",
-      data: { amount: 65, client: "Emma L." },
+      action: "View Transaction",
     },
     {
       id: 3,
-      type: "message",
-      title: "New message",
-      message: "Sarah K.: 'Thanks for the great session today! See you Thursday.'",
-      time: "2 hours ago",
-      unread: true,
-      priority: "low",
+      type: "review",
+      title: "New 5-star review",
+      message: "Sarah K. left a review: 'Amazing HIIT session!'",
+      time: "4 hours ago",
+      read: true,
+      priority: "medium",
       avatar: "SK",
-      action: "new-message",
-      data: { client: "Sarah K." },
+      action: "View Review",
     },
     {
       id: 4,
-      type: "booking",
-      title: "Session reminder",
-      message: "Upcoming session with John D. in 30 minutes - Strength Training",
-      time: "30 minutes ago",
-      unread: false,
+      type: "session",
+      title: "Session request",
+      message: "Mike R. requested a session for tomorrow 9:00 AM",
+      time: "6 hours ago",
+      read: false,
       priority: "high",
-      avatar: "JD",
-      action: "session-reminder",
-      data: { client: "John D.", service: "Strength Training" },
+      avatar: "MR",
+      action: "Respond",
     },
     {
       id: 5,
       type: "system",
-      title: "Weekly report ready",
-      message: "Your weekly performance report is now available",
-      time: "3 hours ago",
-      unread: false,
+      title: "Monthly report ready",
+      message: "Your November performance report is available",
+      time: "1 day ago",
+      read: true,
       priority: "low",
       avatar: null,
-      action: "report-ready",
-      data: {},
+      action: "Download",
     },
     {
       id: 6,
-      type: "booking",
-      title: "Session cancelled",
-      message: "Mike R. cancelled tomorrow's HIIT session. Reason: Schedule conflict",
-      time: "4 hours ago",
-      unread: false,
-      priority: "medium",
-      avatar: "MR",
-      action: "session-cancelled",
-      data: { client: "Mike R.", service: "HIIT" },
+      type: "payment",
+      title: "Payment overdue",
+      message: "Lisa M. has an overdue payment of $70",
+      time: "2 days ago",
+      read: false,
+      priority: "high",
+      avatar: "LM",
+      action: "Send Reminder",
     },
     {
       id: 7,
-      type: "payment",
-      title: "Payment overdue",
-      message: "Lisa M. has an overdue payment of $65 from last week's session",
-      time: "1 day ago",
-      unread: false,
-      priority: "high",
-      avatar: "LM",
-      action: "payment-overdue",
-      data: { amount: 65, client: "Lisa M." },
+      type: "session",
+      title: "Session completed",
+      message: "Completed Pilates session with Anna P.",
+      time: "3 days ago",
+      read: true,
+      priority: "low",
+      avatar: "AP",
+      action: "Add Notes",
     },
     {
       id: 8,
       type: "system",
       title: "New feature available",
-      message: "Try our new automated follow-up messages for better client retention",
-      time: "2 days ago",
-      unread: false,
+      message: "Try our new session analytics dashboard",
+      time: "1 week ago",
+      read: true,
       priority: "low",
       avatar: null,
-      action: "feature-announcement",
-      data: {},
+      action: "Learn More",
     },
+  ])
+
+  const categories = [
+    { id: "all", label: "All", icon: Bell },
+    { id: "sessions", label: "Sessions", icon: Calendar },
+    { id: "payments", label: "Payments", icon: DollarSign },
+    { id: "reviews", label: "Reviews", icon: Star },
+    { id: "system", label: "System", icon: Settings },
   ]
 
-  const filteredNotifications = notifications.filter((notification) => {
-    if (selectedCategory === "all") return true
-    if (selectedCategory === "bookings") return notification.type === "booking"
-    if (selectedCategory === "payments") return notification.type === "payment"
-    if (selectedCategory === "messages") return notification.type === "message"
-    if (selectedCategory === "system") return notification.type === "system"
-    return true
-  })
+  const filteredNotifications = notifications.filter(
+    (notification) => activeCategory === "all" || notification.type === activeCategory,
+  )
 
-  const unreadCount = notifications.filter((n) => n.unread).length
+  const unreadCount = notifications.filter((n) => !n.read).length
 
-  const getNotificationIcon = (type: string) => {
+  const markAsRead = (id: number) => {
+    setNotifications((prev) =>
+      prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+    )
+  }
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
+  }
+
+  const getNotificationIcon = (type: string, priority: string) => {
+    const iconClass = priority === "high" ? "text-red-600" : priority === "medium" ? "text-orange-600" : "text-gray-600"
+
     switch (type) {
-      case "booking":
-        return Calendar
+      case "session":
+        return <Calendar className={`h-5 w-5 ${iconClass}`} />
       case "payment":
-        return DollarSign
-      case "message":
-        return MessageCircle
+        return <DollarSign className={`h-5 w-5 ${iconClass}`} />
+      case "review":
+        return <Star className={`h-5 w-5 ${iconClass}`} />
       case "system":
-        return Bell
+        return <Settings className={`h-5 w-5 ${iconClass}`} />
       default:
-        return Bell
+        return <Bell className={`h-5 w-5 ${iconClass}`} />
     }
-  }
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "text-red-600"
-      case "medium":
-        return "text-orange-600"
-      case "low":
-        return "text-blue-600"
-      default:
-        return "text-gray-600"
-    }
-  }
-
-  if (showSettings) {
-    return <NotificationSettings onBack={() => setShowSettings(false)} />
   }
 
   return (
@@ -173,339 +163,227 @@ export function NotificationsDashboard() {
       {/* Header */}
       <div className="pt-8">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Notifications</h1>
-            <p className="text-gray-600 mt-1">
-              {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
-            </p>
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Notifications</h1>
+              <p className="text-gray-600 mt-1">
+                {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
+              </p>
+            </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setShowSettings(true)}>
-            <Settings className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button variant="ghost" size="sm">
+              <Filter className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+              <CheckCircle2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Category Filter */}
+      {/* Quick Stats */}
       <Card className="border-0 shadow-sm">
         <CardContent className="pt-6">
-          <div className="flex space-x-2 overflow-x-auto">
-            {[
-              { id: "all", label: "All", count: notifications.length },
-              { id: "bookings", label: "Bookings", count: notifications.filter((n) => n.type === "booking").length },
-              { id: "payments", label: "Payments", count: notifications.filter((n) => n.type === "payment").length },
-              { id: "messages", label: "Messages", count: notifications.filter((n) => n.type === "message").length },
-              { id: "system", label: "System", count: notifications.filter((n) => n.type === "system").length },
-            ].map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id as NotificationCategory)}
-                className="bg-transparent flex-shrink-0"
-              >
-                {category.label}
-                {category.count > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">
-                    {category.count}
-                  </Badge>
-                )}
-              </Button>
-            ))}
+          <div className="grid grid-cols-4 gap-4 text-center">
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-blue-600" />
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {notifications.filter((n) => n.type === "session" && !n.read).length}
+              </p>
+              <p className="text-xs text-gray-600">Sessions</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-green-600" />
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {notifications.filter((n) => n.type === "payment" && !n.read).length}
+              </p>
+              <p className="text-xs text-gray-600">Payments</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <Star className="h-5 w-5 text-yellow-600" />
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {notifications.filter((n) => n.type === "review" && !n.read).length}
+              </p>
+              <p className="text-xs text-gray-600">Reviews</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <p className="text-lg font-semibold text-gray-900">
+                {notifications.filter((n) => n.priority === "high" && !n.read).length}
+              </p>
+              <p className="text-xs text-gray-600">Urgent</p>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
+      {/* Category Filters */}
       <Card className="border-0 shadow-sm">
         <CardContent className="pt-6">
-          <div className="flex space-x-2">
-            <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Mark All Read
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+          <div className="flex space-x-2 overflow-x-auto">
+            {categories.map((category) => {
+              const Icon = category.icon
+              const isActive = activeCategory === category.id
+              const count = notifications.filter(
+                (n) => (category.id === "all" || n.type === category.id) && !n.read,
+              ).length
+
+              return (
+                <Button
+                  key={category.id}
+                  variant={isActive ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setActiveCategory(category.id as NotificationCategory)}
+                  className={`flex items-center space-x-2 whitespace-nowrap ${!isActive ? "bg-transparent" : ""}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{category.label}</span>
+                  {count > 0 && (
+                    <Badge variant="secondary" className="bg-red-100 text-red-700 text-xs">
+                      {count}
+                    </Badge>
+                  )}
+                </Button>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
 
       {/* Notifications List */}
-      <div className="space-y-3">
-        {filteredNotifications.map((notification) => {
-          const Icon = getNotificationIcon(notification.type)
-          return (
-            <Card key={notification.id} className={`border-0 shadow-sm ${notification.unread ? "bg-blue-50" : ""}`}>
-              <CardContent className="pt-6">
-                <div className="flex items-start space-x-3">
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">
+            {activeCategory === "all" ? "All Notifications" : categories.find((c) => c.id === activeCategory)?.label}
+            <span className="ml-2 text-sm font-normal text-gray-600">({filteredNotifications.length})</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {filteredNotifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`p-4 rounded-lg border transition-colors cursor-pointer ${
+                !notification.read ? "border-blue-200 bg-blue-50 hover:bg-blue-100" : "border-gray-200 hover:bg-gray-50"
+              }`}
+              onClick={() => markAsRead(notification.id)}
+            >
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
                   {notification.avatar ? (
-                    <Avatar className="h-10 w-10 flex-shrink-0">
-                      <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
-                        {notification.avatar}
-                      </AvatarFallback>
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-blue-100 text-blue-700">{notification.avatar}</AvatarFallback>
                     </Avatar>
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                      <Icon className="h-5 w-5 text-gray-600" />
+                    <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+                      {getNotificationIcon(notification.type, notification.priority)}
                     </div>
                   )}
+                </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                          {notification.unread && <div className="w-2 h-2 bg-blue-600 rounded-full"></div>}
-                          <AlertCircle className={`h-3 w-3 ${getPriorityColor(notification.priority)}`} />
-                        </div>
-                        <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                        <p className="text-xs text-gray-500 mt-2">{notification.time}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <p className={`text-sm font-medium ${!notification.read ? "text-gray-900" : "text-gray-700"}`}>
+                          {notification.title}
+                        </p>
+                        {!notification.read && <div className="w-2 h-2 bg-blue-600 rounded-full"></div>}
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                      <div className="flex items-center space-x-3 mt-2">
+                        <p className="text-xs text-gray-500">{notification.time}</p>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${
+                            notification.priority === "high"
+                              ? "border-red-200 text-red-700"
+                              : notification.priority === "medium"
+                                ? "border-orange-200 text-orange-700"
+                                : "border-gray-200 text-gray-600"
+                          }`}
+                        >
+                          {notification.priority}
+                        </Badge>
+                      </div>
                     </div>
+                    <Button variant="ghost" size="sm">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2 mt-3">
-                      {notification.action === "booking-request" && (
-                        <>
-                          <Button size="sm" className="flex-1">
-                            Accept
-                          </Button>
-                          <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                            Decline
-                          </Button>
-                        </>
-                      )}
-                      {notification.action === "payment-received" && (
-                        <Button variant="outline" size="sm" className="bg-transparent">
-                          View Details
-                        </Button>
-                      )}
-                      {notification.action === "new-message" && (
-                        <Button variant="outline" size="sm" className="bg-transparent">
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          Reply
-                        </Button>
-                      )}
-                      {notification.action === "session-reminder" && (
-                        <Button variant="outline" size="sm" className="bg-transparent">
-                          <Clock className="h-4 w-4 mr-2" />
-                          View Session
-                        </Button>
-                      )}
-                      {notification.action === "payment-overdue" && (
-                        <Button size="sm" className="bg-red-600 hover:bg-red-700">
-                          Send Reminder
-                        </Button>
-                      )}
-                    </div>
+                  <div className="mt-3">
+                    <Button size="sm" variant="outline" className="bg-white">
+                      {notification.action}
+                    </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Load More */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="pt-6">
-          <Button variant="outline" className="w-full bg-transparent">
-            Load More Notifications
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-function NotificationSettings({ onBack }: { onBack: () => void }) {
-  const [settings, setSettings] = useState({
-    pushNotifications: true,
-    emailNotifications: true,
-    smsNotifications: false,
-    bookingRequests: true,
-    paymentUpdates: true,
-    messageAlerts: true,
-    sessionReminders: true,
-    marketingEmails: false,
-    weeklyReports: true,
-    soundEnabled: true,
-    vibrationEnabled: true,
-    quietHours: true,
-    quietStart: "22:00",
-    quietEnd: "08:00",
-  })
-
-  return (
-    <div className="p-3 space-y-4 max-w-md mx-auto">
-      <div className="pt-8">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <X className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Notification Settings</h1>
-        </div>
-      </div>
-
-      {/* General Settings */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">General</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Push Notifications</p>
-              <p className="text-xs text-gray-600">Receive notifications on your device</p>
-            </div>
-            <Switch
-              checked={settings.pushNotifications}
-              onCheckedChange={(checked) => setSettings({ ...settings, pushNotifications: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Email Notifications</p>
-              <p className="text-xs text-gray-600">Receive notifications via email</p>
-            </div>
-            <Switch
-              checked={settings.emailNotifications}
-              onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">SMS Notifications</p>
-              <p className="text-xs text-gray-600">Receive notifications via text message</p>
-            </div>
-            <Switch
-              checked={settings.smsNotifications}
-              onCheckedChange={(checked) => setSettings({ ...settings, smsNotifications: checked })}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notification Types */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Notification Types</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Booking Requests</p>
-              <p className="text-xs text-gray-600">New session booking requests</p>
-            </div>
-            <Switch
-              checked={settings.bookingRequests}
-              onCheckedChange={(checked) => setSettings({ ...settings, bookingRequests: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Payment Updates</p>
-              <p className="text-xs text-gray-600">Payment confirmations and reminders</p>
-            </div>
-            <Switch
-              checked={settings.paymentUpdates}
-              onCheckedChange={(checked) => setSettings({ ...settings, paymentUpdates: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Message Alerts</p>
-              <p className="text-xs text-gray-600">New messages from clients</p>
-            </div>
-            <Switch
-              checked={settings.messageAlerts}
-              onCheckedChange={(checked) => setSettings({ ...settings, messageAlerts: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Session Reminders</p>
-              <p className="text-xs text-gray-600">Upcoming session notifications</p>
-            </div>
-            <Switch
-              checked={settings.sessionReminders}
-              onCheckedChange={(checked) => setSettings({ ...settings, sessionReminders: checked })}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Sound & Vibration */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Sound & Vibration</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Sound</p>
-              <p className="text-xs text-gray-600">Play sound for notifications</p>
-            </div>
-            <Switch
-              checked={settings.soundEnabled}
-              onCheckedChange={(checked) => setSettings({ ...settings, soundEnabled: checked })}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Vibration</p>
-              <p className="text-xs text-gray-600">Vibrate for notifications</p>
-            </div>
-            <Switch
-              checked={settings.vibrationEnabled}
-              onCheckedChange={(checked) => setSettings({ ...settings, vibrationEnabled: checked })}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quiet Hours */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Quiet Hours</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Enable Quiet Hours</p>
-              <p className="text-xs text-gray-600">Silence notifications during set hours</p>
-            </div>
-            <Switch
-              checked={settings.quietHours}
-              onCheckedChange={(checked) => setSettings({ ...settings, quietHours: checked })}
-            />
-          </div>
-          {settings.quietHours && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700">Start Time</label>
-                <input
-                  type="time"
-                  value={settings.quietStart}
-                  onChange={(e) => setSettings({ ...settings, quietStart: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">End Time</label>
-                <input
-                  type="time"
-                  value={settings.quietEnd}
-                  onChange={(e) => setSettings({ ...settings, quietEnd: e.target.value })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                />
-              </div>
+            </div>
+          ))}
+
+          {filteredNotifications.length === 0 && (
+            <div className="text-center py-8">
+              <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No notifications in this category</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Notification Settings */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">Notification Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Session Reminders</p>
+              <p className="text-sm text-gray-600">Get notified before sessions start</p>
+            </div>
+            <div className="w-12 h-6 bg-blue-600 rounded-full relative">
+              <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Payment Notifications</p>
+              <p className="text-sm text-gray-600">Receive payment confirmations</p>
+            </div>
+            <div className="w-12 h-6 bg-blue-600 rounded-full relative">
+              <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Review Alerts</p>
+              <p className="text-sm text-gray-600">Get notified of new client reviews</p>
+            </div>
+            <div className="w-12 h-6 bg-gray-300 rounded-full relative">
+              <div className="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">Marketing Updates</p>
+              <p className="text-sm text-gray-600">Business tips and feature updates</p>
+            </div>
+            <div className="w-12 h-6 bg-gray-300 rounded-full relative">
+              <div className="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

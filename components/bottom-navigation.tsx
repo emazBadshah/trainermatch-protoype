@@ -1,7 +1,5 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Home, Bell, MessageCircle, DollarSign, User } from "lucide-react"
 
 interface BottomNavigationProps {
@@ -11,43 +9,35 @@ interface BottomNavigationProps {
 
 export function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   const tabs = [
-    { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "notifications", label: "Notifications", icon: Bell, badge: 5 },
-    { id: "chat", label: "Chat", icon: MessageCircle, badge: 2 },
-    { id: "financial", label: "Financial", icon: DollarSign },
+    { id: "home", label: "Home", icon: Home },
+    { id: "alerts", label: "Alerts", icon: Bell },
+    { id: "chat", label: "Chat", icon: MessageCircle },
+    { id: "finance", label: "Finance", icon: DollarSign },
     { id: "profile", label: "Profile", icon: User },
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-1 safe-area-pb">
-      <div className="flex justify-around items-center max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 px-4 py-2 max-w-md mx-auto shadow-lg">
+      <div className="flex justify-around">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
-
           return (
-            <Button
+            <button
               key={tab.id}
-              variant="ghost"
-              size="sm"
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center space-y-1 h-auto py-2 px-2 relative min-w-0 flex-1 ${
-                isActive ? "text-blue-600 bg-blue-50" : "text-gray-600 hover:text-gray-900"
+              className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 ${
+                isActive
+                  ? "text-blue-600 bg-blue-50 shadow-md transform scale-105"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              <div className="relative">
-                <Icon className="h-4 w-4" />
-                {tab.badge && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-3 w-3 p-0 text-[10px] flex items-center justify-center"
-                  >
-                    {tab.badge > 9 ? "9+" : tab.badge}
-                  </Badge>
-                )}
-              </div>
-              <span className="text-[10px] font-medium truncate w-full text-center">{tab.label}</span>
-            </Button>
+              <Icon className={`h-5 w-5 transition-all duration-200`} />
+              <span className={`text-xs font-medium transition-all duration-200 ${isActive ? "font-semibold" : ""}`}>
+                {tab.label}
+              </span>
+              {isActive && <div className="w-1 h-1 bg-blue-600 rounded-full"></div>}
+            </button>
           )
         })}
       </div>

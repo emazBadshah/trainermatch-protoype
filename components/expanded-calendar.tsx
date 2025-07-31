@@ -4,13 +4,14 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react"
+import { ChevronLeft, ChevronRight, Clock, Plus } from "lucide-react"
 
-interface ExpandedCalendarViewProps {
+interface ExpandedCalendarProps {
   onCollapse: () => void
+  setCurrentView?: (view: any) => void
 }
 
-export function ExpandedCalendarView({ onCollapse }: ExpandedCalendarViewProps) {
+export function ExpandedCalendar({ onCollapse, setCurrentView }: ExpandedCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date(2024, 10)) // November 2024
   const [selectedDate, setSelectedDate] = useState<number | null>(15) // Today is 15th
 
@@ -75,19 +76,6 @@ export function ExpandedCalendarView({ onCollapse }: ExpandedCalendarViewProps) 
     setSelectedDate(null)
   }
 
-  const getDayStatus = (day: number) => {
-    const sessions = sessionData[day] || []
-    if (sessions.length === 0) return null
-
-    const hasCompleted = sessions.some((s) => s.status === "completed")
-    const hasUpcoming = sessions.some((s) => s.status === "upcoming" || s.status === "starting-soon")
-
-    if (hasCompleted && hasUpcoming) return "mixed"
-    if (hasCompleted) return "completed"
-    if (hasUpcoming) return "upcoming"
-    return null
-  }
-
   const getDayEarnings = (day: number) => {
     const sessions = sessionData[day] || []
     return sessions.reduce((total, session) => {
@@ -132,7 +120,6 @@ export function ExpandedCalendarView({ onCollapse }: ExpandedCalendarViewProps) 
             const isToday = day === 15 // Current day
             const isSelected = selectedDate === day
             const sessions = sessionData[day] || []
-            const dayStatus = getDayStatus(day)
             const earnings = getDayEarnings(day)
 
             return (
@@ -275,7 +262,10 @@ export function ExpandedCalendarView({ onCollapse }: ExpandedCalendarViewProps) 
         <Button variant="outline" className="flex-1 bg-white" onClick={onCollapse}>
           Collapse View
         </Button>
-        <Button className="flex-1">
+        <Button
+          className="flex-1"
+          onClick={() => setCurrentView && setCurrentView({ type: "add-session", step: "client-selection" })}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Session
         </Button>

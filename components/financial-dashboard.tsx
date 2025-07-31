@@ -5,22 +5,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
 import {
-  DollarSign,
+  ArrowLeft,
   TrendingUp,
-  Users,
+  TrendingDown,
+  DollarSign,
   Calendar,
   Download,
-  CheckCircle2,
-  ArrowLeft,
-  Search,
-  MoreHorizontal,
+  Eye,
+  Users,
+  Target,
+  CreditCard,
   FileText,
+  BarChart3,
+  ArrowUpRight,
+  ArrowDownRight,
+  Clock,
+  CheckCircle2,
   AlertCircle,
-  TrendingDown,
-  Send,
+  Plus,
+  Filter,
+  Search,
   MessageCircle,
+  Save,
 } from "lucide-react"
 
 type FinancialView =
@@ -30,151 +37,43 @@ type FinancialView =
   | "growth-opportunities"
   | "transaction-history"
   | "business-analytics"
-  | "client-followups"
-  | "pending-requests"
+  | "follow-up-details"
+  | "pending-bookings-details"
 
-export function FinancialDashboard() {
+interface FinancialDashboardProps {
+  onBack: () => void
+}
+
+export function FinancialDashboard({ onBack }: FinancialDashboardProps) {
   const [currentView, setCurrentView] = useState<FinancialView>("overview")
   const [selectedClient, setSelectedClient] = useState<any>(null)
-  const [searchQuery, setSearchQuery] = useState("")
 
-  const clientData = [
-    {
-      id: 1,
-      name: "Sarah K.",
-      ltv: 900,
-      sessions: 12,
-      avatar: "SK",
-      lastSession: "2 days ago",
-      avgSessionValue: 75,
-      retention: "High",
-      totalPaid: 900,
-      unpaidSessions: 0,
-      preferredServices: ["Core Training", "HIIT"],
-      joinDate: "Jan 2024",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Mike R.",
-      ltv: 480,
-      sessions: 6,
-      avatar: "MR",
-      lastSession: "1 week ago",
-      avgSessionValue: 80,
-      retention: "Medium",
-      totalPaid: 480,
-      unpaidSessions: 1,
-      preferredServices: ["HIIT", "Strength"],
-      joinDate: "Mar 2024",
-      status: "At Risk",
-    },
-    {
-      id: 3,
-      name: "Emma L.",
-      ltv: 780,
-      sessions: 12,
-      avatar: "EL",
-      lastSession: "Today",
-      avgSessionValue: 65,
-      retention: "High",
-      totalPaid: 780,
-      unpaidSessions: 0,
-      preferredServices: ["Yoga", "Pilates"],
-      joinDate: "Feb 2024",
-      status: "Active",
-    },
-  ]
-
-  const recentTransactions = [
-    { id: 1, client: "Emma L.", service: "Yoga", amount: 65, status: "completed", time: "Today", date: "Nov 15, 2024" },
-    {
-      id: 2,
-      client: "John D.",
-      service: "Strength",
-      amount: 75,
-      status: "completed",
-      time: "Today",
-      date: "Nov 15, 2024",
-    },
-    {
-      id: 3,
-      client: "Sarah K.",
-      service: "Core",
-      amount: 75,
-      status: "completed",
-      time: "Yesterday",
-      date: "Nov 14, 2024",
-    },
-    {
-      id: 4,
-      client: "Mike R.",
-      service: "HIIT",
-      amount: 80,
-      status: "pending",
-      time: "Yesterday",
-      date: "Nov 14, 2024",
-    },
-    {
-      id: 5,
-      client: "Lisa M.",
-      service: "Yoga",
-      amount: 65,
-      status: "completed",
-      time: "2 days ago",
-      date: "Nov 13, 2024",
-    },
-  ]
-
-  const growthOpportunities = [
-    {
-      id: 1,
-      type: "follow-up",
-      title: "2 clients need follow-up",
-      description: "Mike R. and Lisa M. haven't booked in 2+ weeks",
-      action: "Send Follow-up Messages",
-      priority: "medium",
-      clients: ["Mike R.", "Lisa M."],
-      lastBooking: "2 weeks ago",
-    },
-    {
-      id: 2,
-      type: "pending-response",
-      title: "3 pending booking requests",
-      description: "New booking requests waiting for your response",
-      action: "Review Requests",
-      priority: "high",
-      clients: ["Alex T.", "Maria S.", "David K."],
-      waitingTime: "2 hours avg",
-    },
-  ]
-
-  if (currentView === "client-details" && selectedClient) {
-    return <ClientDetailsView client={selectedClient} onBack={() => setCurrentView("overview")} />
+  if (currentView === "client-details") {
+    return <ClientDetails client={selectedClient} onBack={() => setCurrentView("overview")} />
   }
 
   if (currentView === "tax-export") {
-    return <TaxExportView onBack={() => setCurrentView("overview")} />
+    return <TaxExport onBack={() => setCurrentView("overview")} />
   }
 
   if (currentView === "growth-opportunities") {
-    return <GrowthOpportunitiesView opportunities={growthOpportunities} onBack={() => setCurrentView("overview")} />
+    return <GrowthOpportunities onBack={() => setCurrentView("overview")} setCurrentView={setCurrentView} />
+  }
+
+  if (currentView === "follow-up-details") {
+    return <FollowUpDetails onBack={() => setCurrentView("growth-opportunities")} />
+  }
+
+  if (currentView === "pending-bookings-details") {
+    return <PendingBookingsDetails onBack={() => setCurrentView("growth-opportunities")} />
   }
 
   if (currentView === "transaction-history") {
-    return <TransactionHistoryView transactions={recentTransactions} onBack={() => setCurrentView("overview")} />
+    return <TransactionHistory onBack={() => setCurrentView("overview")} />
   }
 
   if (currentView === "business-analytics") {
-    return <BusinessAnalyticsView onBack={() => setCurrentView("overview")} />
-  }
-
-  if (currentView === "client-followups") {
-    return <ClientFollowupsView onBack={() => setCurrentView("overview")} />
-  }
-
-  if (currentView === "pending-requests") {
-    return <PendingRequestsView onBack={() => setCurrentView("overview")} />
+    return <BusinessAnalytics onBack={() => setCurrentView("overview")} />
   }
 
   return (
@@ -182,7 +81,13 @@ export function FinancialDashboard() {
       {/* Header */}
       <div className="pt-8">
         <div className="flex items-center space-x-3">
-          <h1 className="text-2xl font-semibold text-gray-900">Financial Dashboard</h1>
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Financial Dashboard</h1>
+            <p className="text-gray-600 mt-1">Track your business performance</p>
+          </div>
         </div>
       </div>
 
@@ -194,77 +99,81 @@ export function FinancialDashboard() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
+              <p className="text-sm text-gray-600">Today</p>
+              <p className="text-2xl font-bold text-gray-900">$140</p>
+              <p className="text-xs text-green-600 flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                +12% vs yesterday
+              </p>
+            </div>
+            <div className="space-y-1">
               <p className="text-sm text-gray-600">This Week</p>
               <p className="text-2xl font-bold text-gray-900">$485</p>
-              <p className="text-xs text-gray-500">6 sessions</p>
+              <p className="text-xs text-green-600 flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                +8% vs last week
+              </p>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-gray-600">This Month</p>
               <p className="text-2xl font-bold text-gray-900">$1,650</p>
-              <p className="text-xs text-gray-500">22 sessions</p>
+              <p className="text-xs text-gray-500">83% of $2,000 goal</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm text-gray-600">This Year</p>
+              <p className="text-2xl font-bold text-gray-900">$18,240</p>
+              <p className="text-xs text-green-600 flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                +15% vs last year
+              </p>
             </div>
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Monthly Goal Progress</span>
-              <span className="font-medium">83% of $2,000</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
-                style={{ width: "83%" }}
-              ></div>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            className="w-full bg-transparent"
-            onClick={() => setCurrentView("business-analytics")}
-          >
-            <TrendingUp className="h-4 w-4 mr-2" />
-            View Detailed Analytics
-          </Button>
         </CardContent>
       </Card>
 
       {/* Business Performance */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Business Performance</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium">Business Performance</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setCurrentView("business-analytics")}>
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <DollarSign className="h-4 w-4 text-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Avg Session Value</p>
-                  <p className="font-semibold text-gray-900">$74.55</p>
-                </div>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Client Retention</p>
-                  <p className="font-semibold text-gray-900">92%</p>
-                </div>
-              </div>
+              <p className="text-lg font-semibold text-gray-900">24</p>
+              <p className="text-xs text-gray-600">Active Clients</p>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-purple-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Peak Earning Day</p>
-                  <p className="font-semibold text-gray-900">Thursday</p>
-                </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <Target className="h-5 w-5 text-green-600" />
               </div>
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-4 w-4 text-orange-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Growth vs Last Month</p>
-                  <p className="font-semibold text-green-600">+23%</p>
-                </div>
+              <p className="text-lg font-semibold text-gray-900">89%</p>
+              <p className="text-xs text-gray-600">Session Rate</p>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-purple-600" />
               </div>
+              <p className="text-lg font-semibold text-gray-900">$76</p>
+              <p className="text-xs text-gray-600">Avg Session</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Monthly Revenue Goal</span>
+              <span className="font-medium">$1,650 / $2,000</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: "83%" }}></div>
             </div>
           </div>
         </CardContent>
@@ -273,82 +182,77 @@ export function FinancialDashboard() {
       {/* Tax Management */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Tax Management</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium">Tax Management</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setCurrentView("tax-export")}>
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
             <div>
-              <p className="text-sm text-gray-600">Q4 2024 Recorded</p>
-              <p className="text-xl font-semibold text-gray-900">$12,450</p>
+              <p className="text-sm font-medium text-green-900">Q4 2024 Ready</p>
+              <p className="text-xs text-green-700">All transactions categorized</p>
             </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Tax-ready
-            </Badge>
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-600">Transactions</p>
-              <p className="font-medium">167</p>
+              <p className="text-gray-600">Business Expenses</p>
+              <p className="font-semibold text-gray-900">$2,340</p>
             </div>
             <div>
-              <p className="text-gray-600">Professional Services</p>
-              <p className="font-medium">100%</p>
+              <p className="text-gray-600">Tax Deductions</p>
+              <p className="font-semibold text-gray-900">$1,890</p>
             </div>
           </div>
-          <Button variant="outline" className="w-full bg-transparent" onClick={() => setCurrentView("tax-export")}>
-            <Download className="h-4 w-4 mr-2" />
-            Export Tax Reports
-          </Button>
         </CardContent>
       </Card>
 
       {/* Client Financial Overview */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-medium">Top Clients by Value</CardTitle>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </div>
+          <CardTitle className="text-lg font-medium">Top Clients</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {clientData.map((client, index) => (
+          {[
+            { name: "Emma L.", avatar: "EL", revenue: 520, sessions: 8, trend: "up" },
+            { name: "John D.", avatar: "JD", revenue: 450, sessions: 6, trend: "up" },
+            { name: "Sarah K.", avatar: "SK", revenue: 380, sessions: 5, trend: "down" },
+          ].map((client, index) => (
             <div
               key={index}
-              className="flex items-center space-x-3 p-3 rounded-lg border border-gray-100 bg-white cursor-pointer hover:bg-gray-50"
+              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-50"
               onClick={() => {
                 setSelectedClient(client)
                 setCurrentView("client-details")
               }}
             >
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{client.avatar}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-100 text-blue-700">{client.avatar}</AvatarFallback>
+                </Avatar>
+                <div>
                   <p className="font-medium text-gray-900">{client.name}</p>
-                  <Badge
-                    variant="secondary"
-                    className={`text-xs ${
-                      client.status === "Active" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                    }`}
-                  >
-                    {client.status}
-                  </Badge>
+                  <p className="text-sm text-gray-600">{client.sessions} sessions this month</p>
                 </div>
-                <p className="text-sm text-gray-600">{client.sessions} sessions</p>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-gray-900">${client.ltv}</p>
-                <p className="text-xs text-gray-500">LTV</p>
+                <p className="font-semibold text-gray-900">${client.revenue}</p>
+                <div className="flex items-center space-x-1">
+                  {client.trend === "up" ? (
+                    <ArrowUpRight className="h-3 w-3 text-green-600" />
+                  ) : (
+                    <ArrowDownRight className="h-3 w-3 text-red-600" />
+                  )}
+                  <span className={`text-xs ${client.trend === "up" ? "text-green-600" : "text-red-600"}`}>
+                    {client.trend === "up" ? "+12%" : "-5%"}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
-          <Button variant="ghost" className="w-full">
-            View All Clients
-          </Button>
         </CardContent>
       </Card>
 
@@ -358,103 +262,81 @@ export function FinancialDashboard() {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg font-medium">Recent Transactions</CardTitle>
             <Button variant="ghost" size="sm" onClick={() => setCurrentView("transaction-history")}>
-              View All
+              <Eye className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-700">Today</p>
-            {recentTransactions.slice(0, 2).map((transaction, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
-                <div className="flex items-center space-x-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{transaction.client}</p>
-                    <p className="text-xs text-gray-600">{transaction.service}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold text-gray-900">${transaction.amount}</span>
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                </div>
+        <CardContent className="space-y-3">
+          {[
+            { client: "Emma L.", service: "Yoga Session", amount: 65, time: "2 hours ago", status: "completed" },
+            { client: "John D.", service: "Strength Training", amount: 75, time: "1 day ago", status: "completed" },
+            { client: "Sarah K.", service: "HIIT Session", amount: 80, time: "2 days ago", status: "pending" },
+          ].map((transaction, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+              <div>
+                <p className="font-medium text-gray-900">{transaction.client}</p>
+                <p className="text-sm text-gray-600">{transaction.service}</p>
+                <p className="text-xs text-gray-500">{transaction.time}</p>
               </div>
-            ))}
-          </div>
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-700">Yesterday</p>
-            {recentTransactions.slice(2, 4).map((transaction, index) => (
-              <div key={index} className="flex items-center justify-between py-2">
-                <div className="flex items-center space-x-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{transaction.client}</p>
-                    <p className="text-xs text-gray-600">{transaction.service}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold text-gray-900">${transaction.amount}</span>
-                  {transaction.status === "pending" ? (
-                    <AlertCircle className="h-4 w-4 text-orange-600" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  )}
-                </div>
+              <div className="text-right">
+                <p className="font-semibold text-gray-900">${transaction.amount}</p>
+                <Badge
+                  variant={transaction.status === "completed" ? "secondary" : "outline"}
+                  className={
+                    transaction.status === "completed" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                  }
+                >
+                  {transaction.status}
+                </Badge>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </CardContent>
       </Card>
 
       {/* Growth Opportunities */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Growth Opportunities</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium">Growth Opportunities</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => setCurrentView("growth-opportunities")}>
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 border border-orange-100">
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-orange-600" />
-                <span className="text-sm text-orange-900">2 clients need follow-up</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-orange-600"
-                onClick={() => setCurrentView("client-followups")}
-              >
-                Follow Up
-              </Button>
+          <div className="p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-blue-900">Client Follow-ups</h4>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                5 pending
+              </Badge>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 border border-red-100">
-              <div className="flex items-center space-x-2">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <span className="text-sm text-red-900">3 pending booking requests</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-red-600"
-                onClick={() => setCurrentView("pending-requests")}
-              >
-                Review
-              </Button>
-            </div>
+            <p className="text-sm text-blue-700 mb-2">Clients who haven't booked in 2+ weeks</p>
+            <Button size="sm" variant="outline" className="bg-white">
+              View Details
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            className="w-full bg-transparent"
-            onClick={() => setCurrentView("growth-opportunities")}
-          >
-            View All Follow-ups & Requests
-          </Button>
+          <div className="p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium text-green-900">Pending Bookings</h4>
+              <Badge variant="secondary" className="bg-green-100 text-green-700">
+                3 requests
+              </Badge>
+            </div>
+            <p className="text-sm text-green-700 mb-2">New session requests awaiting confirmation</p>
+            <Button size="sm" variant="outline" className="bg-white">
+              Review Requests
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
   )
 }
 
-// Client Details View Component
-function ClientDetailsView({ client, onBack }: { client: any; onBack: () => void }) {
+// Client Details Component
+function ClientDetails({ client, onBack }: { client: any; onBack: () => void }) {
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
       <div className="pt-8">
@@ -462,27 +344,25 @@ function ClientDetailsView({ client, onBack }: { client: any; onBack: () => void
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Client Details</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Client Details</h1>
+            <p className="text-gray-600 mt-1">{client.name}</p>
+          </div>
         </div>
       </div>
 
-      {/* Client Header */}
+      {/* Client Overview */}
       <Card className="border-0 shadow-sm">
         <CardContent className="pt-6">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 mb-4">
             <Avatar className="h-16 w-16">
               <AvatarFallback className="bg-blue-100 text-blue-700 text-lg">{client.avatar}</AvatarFallback>
             </Avatar>
-            <div className="flex-1">
+            <div>
               <h2 className="text-xl font-semibold text-gray-900">{client.name}</h2>
-              <p className="text-sm text-gray-600">Member since {client.joinDate}</p>
-              <Badge
-                variant="secondary"
-                className={`mt-2 ${
-                  client.status === "Active" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                }`}
-              >
-                {client.status}
+              <p className="text-gray-600">Active since March 2024</p>
+              <Badge variant="secondary" className="bg-green-100 text-green-700 mt-1">
+                Premium Client
               </Badge>
             </div>
           </div>
@@ -496,93 +376,76 @@ function ClientDetailsView({ client, onBack }: { client: any; onBack: () => void
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Total Paid</p>
-              <p className="text-2xl font-bold text-gray-900">${client.totalPaid}</p>
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <p className="text-2xl font-bold text-blue-900">${client.revenue}</p>
+              <p className="text-sm text-blue-700">Total Revenue</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Avg Session</p>
-              <p className="text-2xl font-bold text-gray-900">${client.avgSessionValue}</p>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <p className="text-2xl font-bold text-green-900">{client.sessions}</p>
+              <p className="text-sm text-green-700">Sessions This Month</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Total Sessions</p>
-              <p className="text-lg font-semibold text-gray-900">{client.sessions}</p>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Average Session Value</span>
+              <span className="font-medium">${Math.round(client.revenue / client.sessions)}</span>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Unpaid Sessions</p>
-              <p className="text-lg font-semibold text-red-600">{client.unpaidSessions}</p>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Payment Method</span>
+              <span className="font-medium">Credit Card</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Next Payment</span>
+              <span className="font-medium">Dec 15, 2024</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Client Insights */}
+      {/* Recent Sessions */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Client Insights</CardTitle>
+          <CardTitle className="text-lg font-medium">Recent Sessions</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Retention Level</span>
-              <Badge
-                variant="secondary"
-                className={`${
-                  client.retention === "High" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
-                }`}
-              >
-                {client.retention}
-              </Badge>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-600">Last Session</span>
-              <span className="text-sm font-medium">{client.lastSession}</span>
-            </div>
-            <div className="space-y-1">
-              <span className="text-sm text-gray-600">Preferred Services</span>
-              <div className="flex flex-wrap gap-1">
-                {client.preferredServices.map((service: string, index: number) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {service}
-                  </Badge>
-                ))}
+        <CardContent className="space-y-3">
+          {[
+            { date: "Dec 10", service: "Yoga Session", amount: 65, status: "completed" },
+            { date: "Dec 8", service: "Pilates", amount: 70, status: "completed" },
+            { date: "Dec 5", service: "Yoga Session", amount: 65, status: "completed" },
+          ].map((session, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+              <div>
+                <p className="font-medium text-gray-900">{session.service}</p>
+                <p className="text-sm text-gray-600">{session.date}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold text-gray-900">${session.amount}</p>
+                <Badge variant="secondary" className="bg-green-100 text-green-700">
+                  {session.status}
+                </Badge>
               </div>
             </div>
-          </div>
+          ))}
         </CardContent>
       </Card>
 
       {/* Actions */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">
-            <Send className="h-4 w-4 mr-2" />
-            Send Message
-          </Button>
-          <Button variant="outline" className="w-full bg-transparent">
-            <Calendar className="h-4 w-4 mr-2" />
-            Schedule Session
-          </Button>
-          <Button variant="outline" className="w-full bg-transparent">
-            <FileText className="h-4 w-4 mr-2" />
-            View Session History
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline" className="bg-transparent">
+          <MessageCircle className="h-4 w-4 mr-2" />
+          Message
+        </Button>
+        <Button>
+          <Calendar className="h-4 w-4 mr-2" />
+          Book Session
+        </Button>
+      </div>
     </div>
   )
 }
 
-// Tax Export View Component
-function TaxExportView({ onBack }: { onBack: () => void }) {
-  const [selectedPeriod, setSelectedPeriod] = useState("Q4-2024")
-  const [exportFormat, setExportFormat] = useState("PDF")
-
+// Tax Export Component
+function TaxExport({ onBack }: { onBack: () => void }) {
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
       <div className="pt-8">
@@ -590,111 +453,99 @@ function TaxExportView({ onBack }: { onBack: () => void }) {
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Tax Export</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Tax Export</h1>
+            <p className="text-gray-600 mt-1">Download tax documents</p>
+          </div>
         </div>
       </div>
+
+      {/* Tax Summary */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">2024 Tax Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <p className="text-2xl font-bold text-green-900">$18,240</p>
+              <p className="text-sm text-green-700">Total Income</p>
+            </div>
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <p className="text-2xl font-bold text-blue-900">$2,340</p>
+              <p className="text-sm text-blue-700">Business Expenses</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Equipment Purchases</span>
+              <span className="font-medium">$890</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Professional Development</span>
+              <span className="font-medium">$650</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Marketing & Advertising</span>
+              <span className="font-medium">$450</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-600">Insurance</span>
+              <span className="font-medium">$350</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Export Options */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg font-medium">Export Options</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Time Period</label>
-            <div className="grid grid-cols-2 gap-2">
-              {["Q4-2024", "Q3-2024", "Q2-2024", "Q1-2024"].map((period) => (
-                <Button
-                  key={period}
-                  variant={selectedPeriod === period ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedPeriod(period)}
-                  className="bg-transparent"
-                >
-                  {period}
-                </Button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Format</label>
-            <div className="flex space-x-2">
-              {["PDF", "CSV", "Excel"].map((format) => (
-                <Button
-                  key={format}
-                  variant={exportFormat === format ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setExportFormat(format)}
-                  className="bg-transparent"
-                >
-                  {format}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Preview */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Export Preview</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Period</span>
-              <span className="font-medium">{selectedPeriod}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Total Revenue</span>
-              <span className="font-medium">$12,450</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Total Transactions</span>
-              <span className="font-medium">167</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Tax Category</span>
-              <span className="font-medium">Professional Services</span>
-            </div>
-          </div>
-          <Button className="w-full">
+        <CardContent className="space-y-3">
+          <Button className="w-full justify-start">
+            <FileText className="h-4 w-4 mr-2" />
+            Download Full Tax Report (PDF)
+          </Button>
+          <Button variant="outline" className="w-full justify-start bg-transparent">
             <Download className="h-4 w-4 mr-2" />
-            Export {exportFormat} Report
+            Export Transaction Data (CSV)
+          </Button>
+          <Button variant="outline" className="w-full justify-start bg-transparent">
+            <CreditCard className="h-4 w-4 mr-2" />
+            Payment Summary Report
           </Button>
         </CardContent>
       </Card>
 
-      {/* Tax Documents */}
+      {/* Quarterly Breakdown */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Available Documents</CardTitle>
+          <CardTitle className="text-lg font-medium">Quarterly Breakdown</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {[
-            { name: "1099-K Form 2024", status: "Ready", date: "Dec 2024" },
-            { name: "Business Expense Summary", status: "Ready", date: "Q4 2024" },
-            { name: "Client Payment Summary", status: "Ready", date: "Q4 2024" },
-          ].map((doc, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white"
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="h-5 w-5 text-gray-600" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                  <p className="text-xs text-gray-600">{doc.date}</p>
-                </div>
+            { quarter: "Q1 2024", income: 4200, expenses: 580, status: "complete" },
+            { quarter: "Q2 2024", income: 4800, expenses: 620, status: "complete" },
+            { quarter: "Q3 2024", income: 4640, expenses: 590, status: "complete" },
+            { quarter: "Q4 2024", income: 4600, expenses: 550, status: "in-progress" },
+          ].map((quarter, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+              <div>
+                <p className="font-medium text-gray-900">{quarter.quarter}</p>
+                <p className="text-sm text-gray-600">
+                  Income: ${quarter.income.toLocaleString()} | Expenses: ${quarter.expenses.toLocaleString()}
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <Badge variant="secondary" className="bg-green-100 text-green-700">
-                  {doc.status}
+              <div className="text-right">
+                <Badge
+                  variant={quarter.status === "complete" ? "secondary" : "outline"}
+                  className={
+                    quarter.status === "complete" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                  }
+                >
+                  {quarter.status}
                 </Badge>
-                <Button variant="ghost" size="sm">
-                  <Download className="h-4 w-4" />
-                </Button>
               </div>
             </div>
           ))}
@@ -704,8 +555,11 @@ function TaxExportView({ onBack }: { onBack: () => void }) {
   )
 }
 
-// Growth Opportunities View Component
-function GrowthOpportunitiesView({ opportunities, onBack }: { opportunities: any[]; onBack: () => void }) {
+// Growth Opportunities Component
+function GrowthOpportunities({
+  onBack,
+  setCurrentView,
+}: { onBack: () => void; setCurrentView: (view: FinancialView) => void }) {
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
       <div className="pt-8">
@@ -713,268 +567,131 @@ function GrowthOpportunitiesView({ opportunities, onBack }: { opportunities: any
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Follow-ups & Requests</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Growth Opportunities</h1>
+            <p className="text-gray-600 mt-1">Expand your business</p>
+          </div>
         </div>
       </div>
 
-      {opportunities.map((opportunity, index) => (
-        <Card key={index} className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-medium">{opportunity.title}</CardTitle>
-              <Badge
-                variant="secondary"
-                className={`${
-                  opportunity.priority === "high" ? "bg-red-100 text-red-700" : "bg-orange-100 text-orange-700"
-                }`}
-              >
-                {opportunity.priority} priority
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-gray-600">{opportunity.description}</p>
-
-            {/* Client List */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-700">Clients:</p>
-              <div className="space-y-1">
-                {opportunity.clients.map((client: string, clientIndex: number) => (
-                  <div key={clientIndex} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span className="text-sm text-gray-900">{client}</span>
-                    {opportunity.type === "follow-up" ? (
-                      <span className="text-xs text-gray-500">Last: {opportunity.lastBooking}</span>
-                    ) : (
-                      <span className="text-xs text-red-600">Waiting {opportunity.waitingTime}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex space-x-2">
-              {opportunity.type === "follow-up" ? (
-                <>
-                  <Button size="sm" className="flex-1">
-                    Send Follow-up
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                    View History
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button size="sm" className="flex-1">
-                    Review Requests
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                    Accept All
-                  </Button>
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* Quick Actions */}
+      {/* Client Follow-ups */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">
-            <Send className="h-4 w-4 mr-2" />
-            Send Bulk Follow-up Messages
-          </Button>
-          <Button variant="outline" className="w-full bg-transparent">
-            <Calendar className="h-4 w-4 mr-2" />
-            View All Pending Requests
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
-
-// Transaction History View Component
-function TransactionHistoryView({ transactions, onBack }: { transactions: any[]; onBack: () => void }) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
-
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesSearch =
-      transaction.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.service.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesFilter = filterStatus === "all" || transaction.status === filterStatus
-    return matchesSearch && matchesFilter
-  })
-
-  return (
-    <div className="p-3 space-y-4 max-w-md mx-auto">
-      <div className="pt-8">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Transaction History</h1>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="pt-6 space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search transactions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium flex items-center">
+              <Clock className="h-5 w-5 mr-2 text-blue-600" />
+              Client Follow-ups
+            </CardTitle>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+              5 pending
+            </Badge>
           </div>
-          <div className="flex space-x-2">
-            {["all", "completed", "pending"].map((status) => (
-              <Button
-                key={status}
-                variant={filterStatus === status ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFilterStatus(status)}
-                className="bg-transparent capitalize"
-              >
-                {status}
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Transaction List */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Transactions ({filteredTransactions.length})</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {filteredTransactions.map((transaction, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white"
-            >
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">{transaction.client}</p>
-                  <span className="text-sm font-semibold text-gray-900">${transaction.amount}</span>
+          <p className="text-sm text-gray-600 mb-3">
+            Clients who haven't booked sessions in 2+ weeks. Following up can increase rebooking rates by 40%.
+          </p>
+
+          {[
+            { name: "Mike R.", avatar: "MR", lastSession: "3 weeks ago", potentialRevenue: 240 },
+            { name: "Lisa M.", avatar: "LM", lastSession: "2 weeks ago", potentialRevenue: 195 },
+            { name: "David K.", avatar: "DK", lastSession: "4 weeks ago", potentialRevenue: 300 },
+          ].map((client, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-blue-100 text-blue-700">{client.avatar}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-gray-900">{client.name}</p>
+                  <p className="text-sm text-gray-600">Last session: {client.lastSession}</p>
                 </div>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-xs text-gray-600">{transaction.service}</p>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">{transaction.date}</span>
-                    {transaction.status === "pending" ? (
-                      <AlertCircle className="h-4 w-4 text-orange-600" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    )}
-                  </div>
-                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-green-600">+${client.potentialRevenue}</p>
+                <p className="text-xs text-gray-500">potential</p>
               </div>
             </div>
           ))}
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
 
-// Business Analytics View Component
-function BusinessAnalyticsView({ onBack }: { onBack: () => void }) {
-  return (
-    <div className="p-3 space-y-4 max-w-md mx-auto">
-      <div className="pt-8">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
+          <Button className="w-full" onClick={() => setCurrentView("follow-up-details")}>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Start Follow-up Campaign
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Business Analytics</h1>
-        </div>
-      </div>
-
-      {/* Revenue Trends */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Revenue Trends</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">$1,650</p>
-              <p className="text-xs text-green-600 flex items-center">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                +23% vs last month
-              </p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-gray-600">Last Month</p>
-              <p className="text-2xl font-bold text-gray-900">$1,340</p>
-              <p className="text-xs text-red-600 flex items-center">
-                <TrendingDown className="h-3 w-3 mr-1" />
-                -5% vs previous
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
 
-      {/* Session Analytics */}
+      {/* Pending Booking Requests */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Session Analytics</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Most Popular Service</span>
-              <span className="text-sm font-medium">HIIT Training</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Peak Hours</span>
-              <span className="text-sm font-medium">6:00 PM - 8:00 PM</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Average Session Duration</span>
-              <span className="text-sm font-medium">60 minutes</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Cancellation Rate</span>
-              <span className="text-sm font-medium text-green-600">8%</span>
-            </div>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2 text-green-600" />
+              Pending Bookings
+            </CardTitle>
+            <Badge variant="secondary" className="bg-green-100 text-green-700">
+              3 requests
+            </Badge>
           </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-gray-600 mb-3">
+            New session requests awaiting your confirmation. Quick responses increase booking conversion by 60%.
+          </p>
+
+          {[
+            {
+              name: "Jennifer S.",
+              avatar: "JS",
+              service: "Yoga Session",
+              requestedTime: "Tomorrow 10:00 AM",
+              value: 65,
+            },
+            { name: "Robert T.", avatar: "RT", service: "HIIT Training", requestedTime: "Friday 6:00 PM", value: 80 },
+            {
+              name: "Maria G.",
+              avatar: "MG",
+              service: "Personal Training",
+              requestedTime: "Saturday 9:00 AM",
+              value: 75,
+            },
+          ].map((request, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+              <div className="flex items-center space-x-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-green-100 text-green-700">{request.avatar}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-gray-900">{request.name}</p>
+                  <p className="text-sm text-gray-600">{request.service}</p>
+                  <p className="text-xs text-gray-500">{request.requestedTime}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-green-600">${request.value}</p>
+                <Badge variant="outline" className="text-xs">
+                  New
+                </Badge>
+              </div>
+            </div>
+          ))}
+
+          <Button className="w-full" onClick={() => setCurrentView("pending-bookings-details")}>
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            Review Booking Requests
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Client Insights */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Client Insights</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">New Clients This Month</span>
-              <span className="text-sm font-medium">3</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Client Retention Rate</span>
-              <span className="text-sm font-medium text-green-600">92%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Average Client LTV</span>
-              <span className="text-sm font-medium">$720</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Repeat Booking Rate</span>
-              <span className="text-sm font-medium text-green-600">85%</span>
-            </div>
+      {/* Revenue Impact */}
+      <Card className="border-0 shadow-sm bg-gradient-to-r from-blue-50 to-green-50">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-2">
+            <h3 className="font-semibold text-gray-900">Potential Revenue Impact</h3>
+            <p className="text-3xl font-bold text-green-600">+$955</p>
+            <p className="text-sm text-gray-600">
+              By following up with inactive clients and confirming pending bookings
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -982,62 +699,63 @@ function BusinessAnalyticsView({ onBack }: { onBack: () => void }) {
   )
 }
 
-// Client Follow-ups View Component
-function ClientFollowupsView({ onBack }: { onBack: () => void }) {
-  const [selectedClients, setSelectedClients] = useState<string[]>([])
-  const [messageTemplate, setMessageTemplate] = useState("check-in")
-  const [customMessage, setCustomMessage] = useState("")
+// Follow-up Details Component
+function FollowUpDetails({ onBack }: { onBack: () => void }) {
+  const [selectedClients, setSelectedClients] = useState<number[]>([])
+  const [messageTemplate, setMessageTemplate] = useState(
+    "Hi {name}! It's been a while since our last session. I'd love to help you continue your fitness journey. Are you available for a session this week?",
+  )
 
-  const followupClients = [
+  const clients = [
     {
       id: 1,
       name: "Mike R.",
       avatar: "MR",
-      lastSession: "2 weeks ago",
-      lastService: "HIIT Session",
-      totalSessions: 6,
-      avgSessionValue: 80,
+      lastSession: "3 weeks ago",
       preferredTime: "Evenings",
-      status: "At Risk",
-      reason: "No booking in 2 weeks",
+      potentialRevenue: 240,
     },
     {
       id: 2,
       name: "Lisa M.",
       avatar: "LM",
-      lastSession: "3 weeks ago",
-      lastService: "Yoga",
-      totalSessions: 8,
-      avgSessionValue: 65,
+      lastSession: "2 weeks ago",
       preferredTime: "Mornings",
-      status: "At Risk",
-      reason: "No booking in 3 weeks",
+      potentialRevenue: 195,
+    },
+    {
+      id: 3,
+      name: "David K.",
+      avatar: "DK",
+      lastSession: "4 weeks ago",
+      preferredTime: "Weekends",
+      potentialRevenue: 300,
+    },
+    {
+      id: 4,
+      name: "Anna P.",
+      avatar: "AP",
+      lastSession: "5 weeks ago",
+      preferredTime: "Lunch time",
+      potentialRevenue: 180,
+    },
+    {
+      id: 5,
+      name: "Tom W.",
+      avatar: "TW",
+      lastSession: "3 weeks ago",
+      preferredTime: "Early morning",
+      potentialRevenue: 220,
     },
   ]
 
-  const messageTemplates = {
-    "check-in":
-      "Hi {name}! I noticed it's been a while since our last session. How are you doing? Would you like to schedule another {service} session?",
-    "special-offer":
-      "Hi {name}! I'm offering a 10% discount on your next {service} session. Would you like to book this week?",
-    "new-program":
-      "Hi {name}! I've developed a new training program that I think you'd love. Would you like to hear about it?",
-    custom: customMessage,
+  const toggleClient = (clientId: number) => {
+    setSelectedClients((prev) => (prev.includes(clientId) ? prev.filter((id) => id !== clientId) : [...prev, clientId]))
   }
 
-  const toggleClientSelection = (clientName: string) => {
-    setSelectedClients((prev) =>
-      prev.includes(clientName) ? prev.filter((name) => name !== clientName) : [...prev, clientName],
-    )
-  }
-
-  const selectAllClients = () => {
-    setSelectedClients(followupClients.map((client) => client.name))
-  }
-
-  const clearSelection = () => {
-    setSelectedClients([])
-  }
+  const totalPotentialRevenue = clients
+    .filter((client) => selectedClients.includes(client.id))
+    .reduce((sum, client) => sum + client.potentialRevenue, 0)
 
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
@@ -1046,79 +764,58 @@ function ClientFollowupsView({ onBack }: { onBack: () => void }) {
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Client Follow-ups</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Client Follow-ups</h1>
+            <p className="text-gray-600 mt-1">Re-engage inactive clients</p>
+          </div>
         </div>
       </div>
 
-      {/* Summary */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Clients needing follow-up</p>
-              <p className="text-2xl font-bold text-gray-900">{followupClients.length}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Potential revenue</p>
-              <p className="text-lg font-semibold text-green-600">
-                ${followupClients.reduce((sum, client) => sum + client.avgSessionValue, 0)}
+      {/* Selection Summary */}
+      {selectedClients.length > 0 && (
+        <Card className="border-0 shadow-sm bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-2">
+              <p className="font-medium text-blue-900">
+                {selectedClients.length} client{selectedClients.length > 1 ? "s" : ""} selected
               </p>
+              <p className="text-2xl font-bold text-green-600">+${totalPotentialRevenue}</p>
+              <p className="text-sm text-blue-700">Potential revenue</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Client Selection */}
+      {/* Client List */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-medium">Select Clients</CardTitle>
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm" onClick={selectAllClients}>
-                Select All
-              </Button>
-              <Button variant="ghost" size="sm" onClick={clearSelection}>
-                Clear
-              </Button>
-            </div>
-          </div>
+          <CardTitle className="text-lg font-medium">Select Clients to Follow Up</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {followupClients.map((client) => (
+          {clients.map((client) => (
             <div
               key={client.id}
               className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                selectedClients.includes(client.name)
-                  ? "border-blue-200 bg-blue-50"
-                  : "border-gray-100 bg-white hover:bg-gray-50"
+                selectedClients.includes(client.id)
+                  ? "border-blue-500 bg-blue-50"
+                  : "border-gray-200 hover:border-gray-300"
               }`}
-              onClick={() => toggleClientSelection(client.name)}
+              onClick={() => toggleClient(client.id)}
             >
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedClients.includes(client.name)}
-                    onChange={() => toggleClientSelection(client.name)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300"
-                  />
-                </div>
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{client.avatar}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarFallback className="bg-blue-100 text-blue-700">{client.avatar}</AvatarFallback>
+                  </Avatar>
+                  <div>
                     <p className="font-medium text-gray-900">{client.name}</p>
-                    <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
-                      {client.status}
-                    </Badge>
+                    <p className="text-sm text-gray-600">Last session: {client.lastSession}</p>
+                    <p className="text-xs text-gray-500">Prefers: {client.preferredTime}</p>
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Last: {client.lastSession} • {client.lastService}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {client.totalSessions} sessions • ${client.avgSessionValue} avg
-                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-green-600">+${client.potentialRevenue}</p>
+                  {selectedClients.includes(client.id) && <CheckCircle2 className="h-5 w-5 text-blue-600 mt-1" />}
                 </div>
               </div>
             </div>
@@ -1129,172 +826,96 @@ function ClientFollowupsView({ onBack }: { onBack: () => void }) {
       {/* Message Template */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Message Template</CardTitle>
+          <CardTitle className="text-lg font-medium">Follow-up Message</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Choose Template</label>
-            <div className="space-y-2">
-              {Object.entries({
-                "check-in": "Friendly Check-in",
-                "special-offer": "Special Offer",
-                "new-program": "New Program",
-                custom: "Custom Message",
-              }).map(([key, label]) => (
-                <div key={key} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id={key}
-                    name="template"
-                    value={key}
-                    checked={messageTemplate === key}
-                    onChange={(e) => setMessageTemplate(e.target.value)}
-                    className="h-4 w-4 text-blue-600"
-                  />
-                  <label htmlFor={key} className="text-sm text-gray-700">
-                    {label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {messageTemplate === "custom" && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Custom Message</label>
-              <textarea
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-                placeholder="Write your custom message..."
-                className="w-full p-3 border border-gray-300 rounded-lg text-sm"
-                rows={4}
-              />
-            </div>
-          )}
-
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <p className="text-xs text-gray-600 mb-2">Preview:</p>
-            <p className="text-sm text-gray-900">
-              {messageTemplates[messageTemplate as keyof typeof messageTemplates]
-                .replace("{name}", selectedClients[0] || "Client")
-                .replace("{service}", "your preferred")}
-            </p>
+        <CardContent className="space-y-3">
+          <textarea
+            value={messageTemplate}
+            onChange={(e) => setMessageTemplate(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg text-sm"
+            rows={4}
+            placeholder="Customize your follow-up message..."
+          />
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline" className="text-xs">
+              {"{name}"} - Client name
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {"{last_session}"} - Last session date
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {"{preferred_time}"} - Preferred time
+            </Badge>
           </div>
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="pt-6 space-y-3">
-          <Button className="w-full" disabled={selectedClients.length === 0}>
-            <Send className="h-4 w-4 mr-2" />
-            Send Messages ({selectedClients.length})
+      {/* Send Options */}
+      <div className="space-y-3">
+        <Button className="w-full" disabled={selectedClients.length === 0}>
+          <MessageCircle className="h-4 w-4 mr-2" />
+          Send Follow-up Messages ({selectedClients.length})
+        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" className="bg-transparent">
+            <Clock className="h-4 w-4 mr-2" />
+            Schedule Later
           </Button>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" className="bg-transparent">
-              <Calendar className="h-4 w-4 mr-2" />
-              Schedule Later
-            </Button>
-            <Button variant="outline" className="bg-transparent">
-              <FileText className="h-4 w-4 mr-2" />
-              Save Template
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <Button variant="outline" className="bg-transparent">
+            <Save className="h-4 w-4 mr-2" />
+            Save Template
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
 
-// Pending Requests View Component
-function PendingRequestsView({ onBack }: { onBack: () => void }) {
-  const [selectedRequests, setSelectedRequests] = useState<number[]>([])
-  const [filterPriority, setFilterPriority] = useState("all")
-
-  const pendingRequests = [
+// Pending Bookings Details Component
+function PendingBookingsDetails({ onBack }: { onBack: () => void }) {
+  const [bookingRequests, setBookingRequests] = useState([
     {
       id: 1,
-      client: "Alex T.",
-      avatar: "AT",
-      service: "Personal Training",
-      requestedDate: "Tomorrow",
-      requestedTime: "10:00 AM",
-      duration: "60 min",
-      price: 85,
-      message: "Looking for strength training focused on upper body",
-      waitingTime: "2 hours",
-      priority: "high",
-      clientInfo: {
-        totalSessions: 0,
-        isNewClient: true,
-        preferredServices: ["Strength Training"],
-      },
+      name: "Jennifer S.",
+      avatar: "JS",
+      service: "Yoga Session",
+      requestedTime: "Tomorrow 10:00 AM",
+      value: 65,
+      message: "Hi! I'd like to book a yoga session focusing on stress relief and flexibility.",
+      status: "pending",
     },
     {
       id: 2,
-      client: "Maria S.",
-      avatar: "MS",
-      service: "Yoga Session",
-      requestedDate: "Friday",
-      requestedTime: "6:00 PM",
-      duration: "90 min",
-      price: 75,
-      message: "Need help with flexibility and stress relief",
-      waitingTime: "4 hours",
-      priority: "medium",
-      clientInfo: {
-        totalSessions: 3,
-        isNewClient: false,
-        preferredServices: ["Yoga", "Pilates"],
-      },
+      name: "Robert T.",
+      avatar: "RT",
+      service: "HIIT Training",
+      requestedTime: "Friday 6:00 PM",
+      value: 80,
+      message: "Looking for an intense HIIT workout to improve my cardio fitness.",
+      status: "pending",
     },
     {
       id: 3,
-      client: "David K.",
-      avatar: "DK",
-      service: "HIIT Training",
-      requestedDate: "Saturday",
-      requestedTime: "9:00 AM",
-      duration: "45 min",
-      price: 80,
-      message: "Want to improve cardio fitness",
-      waitingTime: "6 hours",
-      priority: "low",
-      clientInfo: {
-        totalSessions: 1,
-        isNewClient: false,
-        preferredServices: ["HIIT", "Cardio"],
-      },
+      name: "Maria G.",
+      avatar: "MG",
+      service: "Personal Training",
+      requestedTime: "Saturday 9:00 AM",
+      value: 75,
+      message: "Need help with strength training form and building a workout routine.",
+      status: "pending",
     },
-  ]
+  ])
 
-  const filteredRequests = pendingRequests.filter(
-    (request) => filterPriority === "all" || request.priority === filterPriority,
-  )
-
-  const toggleRequestSelection = (requestId: number) => {
-    setSelectedRequests((prev) =>
-      prev.includes(requestId) ? prev.filter((id) => id !== requestId) : [...prev, requestId],
+  const handleBookingAction = (bookingId: number, action: "accept" | "decline") => {
+    setBookingRequests((prev) =>
+      prev.map((booking) =>
+        booking.id === bookingId ? { ...booking, status: action === "accept" ? "accepted" : "declined" } : booking,
+      ),
     )
   }
 
-  const selectAllRequests = () => {
-    setSelectedRequests(filteredRequests.map((request) => request.id))
-  }
-
-  const clearSelection = () => {
-    setSelectedRequests([])
-  }
-
-  const acceptSelected = () => {
-    // Handle bulk accept logic
-    console.log("Accepting requests:", selectedRequests)
-  }
-
-  const declineSelected = () => {
-    // Handle bulk decline logic
-    console.log("Declining requests:", selectedRequests)
-  }
+  const pendingCount = bookingRequests.filter((b) => b.status === "pending").length
+  const totalValue = bookingRequests.filter((b) => b.status === "accepted").reduce((sum, b) => sum + b.value, 0)
 
   return (
     <div className="p-3 space-y-4 max-w-md mx-auto">
@@ -1303,197 +924,368 @@ function PendingRequestsView({ onBack }: { onBack: () => void }) {
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-semibold text-gray-900">Pending Requests</h1>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Pending Bookings</h1>
+            <p className="text-gray-600 mt-1">Review session requests</p>
+          </div>
         </div>
       </div>
 
       {/* Summary */}
-      <Card className="border-0 shadow-sm">
+      <Card className="border-0 shadow-sm bg-green-50">
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+          <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-sm text-gray-600">Pending requests</p>
-              <p className="text-2xl font-bold text-gray-900">{pendingRequests.length}</p>
+              <p className="text-2xl font-bold text-green-900">{pendingCount}</p>
+              <p className="text-sm text-green-700">Pending Requests</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Potential revenue</p>
-              <p className="text-lg font-semibold text-green-600">
-                ${pendingRequests.reduce((sum, request) => sum + request.price, 0)}
-              </p>
+            <div>
+              <p className="text-2xl font-bold text-green-900">${totalValue}</p>
+              <p className="text-sm text-green-700">Confirmed Revenue</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Filter and Selection */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="pt-6 space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              {["all", "high", "medium", "low"].map((priority) => (
-                <Button
-                  key={priority}
-                  variant={filterPriority === priority ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilterPriority(priority)}
-                  className="bg-transparent capitalize"
-                >
-                  {priority} {priority !== "all" && "priority"}
-                </Button>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm" onClick={selectAllRequests}>
-                Select All
-              </Button>
-              <Button variant="ghost" size="sm" onClick={clearSelection}>
-                Clear
-              </Button>
-            </div>
-            <span className="text-sm text-gray-600">{selectedRequests.length} selected</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Requests List */}
-      <div className="space-y-3">
-        {filteredRequests.map((request) => (
-          <Card key={request.id} className="border-0 shadow-sm">
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                {/* Request Header */}
-                <div className="flex items-start space-x-3">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedRequests.includes(request.id)}
-                      onChange={() => toggleRequestSelection(request.id)}
-                      className="h-4 w-4 text-blue-600 rounded border-gray-300"
-                    />
-                  </div>
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{request.avatar}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium text-gray-900">{request.client}</p>
-                      {request.clientInfo.isNewClient && (
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
-                          New Client
-                        </Badge>
-                      )}
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs ${
-                          request.priority === "high"
-                            ? "bg-red-100 text-red-700"
-                            : request.priority === "medium"
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-green-100 text-green-700"
-                        }`}
-                      >
-                        {request.priority} priority
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">{request.service}</p>
-                    <p className="text-xs text-gray-500">{request.clientInfo.totalSessions} previous sessions</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900">${request.price}</p>
-                    <p className="text-xs text-gray-500">{request.duration}</p>
-                  </div>
-                </div>
-
-                {/* Request Details */}
-                <div className="bg-gray-50 p-3 rounded-lg space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Requested Date:</span>
-                    <span className="font-medium">{request.requestedDate}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Requested Time:</span>
-                    <span className="font-medium">{request.requestedTime}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Waiting Time:</span>
-                    <span className="font-medium text-orange-600">{request.waitingTime}</span>
-                  </div>
-                </div>
-
-                {/* Client Message */}
-                {request.message && (
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-xs text-blue-600 mb-1">Client Message:</p>
-                    <p className="text-sm text-blue-900">"{request.message}"</p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="flex space-x-2">
-                  <Button size="sm" className="flex-1">
-                    Accept
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-                    Decline
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <MessageCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Bulk Actions */}
-      {selectedRequests.length > 0 && (
-        <Card className="border-0 shadow-sm bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium text-blue-900">
-                {selectedRequests.length} request{selectedRequests.length > 1 ? "s" : ""} selected
-              </p>
-              <p className="text-sm font-semibold text-green-600">
-                $
-                {pendingRequests
-                  .filter((req) => selectedRequests.includes(req.id))
-                  .reduce((sum, req) => sum + req.price, 0)}{" "}
-                potential
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <Button size="sm" className="flex-1" onClick={acceptSelected}>
-                Accept Selected
-              </Button>
-              <Button variant="outline" size="sm" className="flex-1 bg-white" onClick={declineSelected}>
-                Decline Selected
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Actions */}
+      {/* Booking Requests */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-medium">Quick Actions</CardTitle>
+          <CardTitle className="text-lg font-medium">Session Requests</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <Button variant="outline" className="w-full bg-transparent">
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Accept All High Priority
+        <CardContent className="space-y-4">
+          {bookingRequests.map((request) => (
+            <div key={request.id} className="p-4 rounded-lg border border-gray-200 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback className="bg-blue-100 text-blue-700">{request.avatar}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium text-gray-900">{request.name}</p>
+                    <p className="text-sm text-gray-600">{request.service}</p>
+                    <p className="text-xs text-gray-500">{request.requestedTime}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-gray-900">${request.value}</p>
+                  <Badge
+                    variant={request.status === "pending" ? "outline" : "secondary"}
+                    className={
+                      request.status === "accepted"
+                        ? "bg-green-100 text-green-700"
+                        : request.status === "declined"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-orange-100 text-orange-700"
+                    }
+                  >
+                    {request.status}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-sm text-gray-700">{request.message}</p>
+              </div>
+
+              {request.status === "pending" && (
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 bg-transparent"
+                    onClick={() => handleBookingAction(request.id, "decline")}
+                  >
+                    Decline
+                  </Button>
+                  <Button size="sm" className="flex-1" onClick={() => handleBookingAction(request.id, "accept")}>
+                    <CheckCircle2 className="h-4 w-4 mr-1" />
+                    Accept
+                  </Button>
+                </div>
+              )}
+
+              {request.status === "accepted" && (
+                <Button variant="outline" size="sm" className="w-full bg-transparent">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Send Confirmation Details
+                </Button>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline" className="bg-transparent">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Availability
+        </Button>
+        <Button variant="outline" className="bg-transparent">
+          <Calendar className="h-4 w-4 mr-2" />
+          View Calendar
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// Transaction History Component
+function TransactionHistory({ onBack }: { onBack: () => void }) {
+  const [filter, setFilter] = useState("all")
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const transactions = [
+    {
+      id: 1,
+      client: "Emma L.",
+      service: "Yoga Session",
+      amount: 65,
+      date: "2024-12-10",
+      status: "completed",
+      method: "Credit Card",
+    },
+    {
+      id: 2,
+      client: "John D.",
+      service: "Strength Training",
+      amount: 75,
+      date: "2024-12-09",
+      status: "completed",
+      method: "Bank Transfer",
+    },
+    {
+      id: 3,
+      client: "Sarah K.",
+      service: "HIIT Session",
+      amount: 80,
+      date: "2024-12-08",
+      status: "pending",
+      method: "Credit Card",
+    },
+    {
+      id: 4,
+      client: "Mike R.",
+      service: "Personal Training",
+      amount: 75,
+      date: "2024-12-07",
+      status: "completed",
+      method: "Cash",
+    },
+    {
+      id: 5,
+      client: "Lisa M.",
+      service: "Pilates",
+      amount: 70,
+      date: "2024-12-06",
+      status: "completed",
+      method: "Credit Card",
+    },
+    {
+      id: 6,
+      client: "David K.",
+      service: "Yoga Session",
+      amount: 65,
+      date: "2024-12-05",
+      status: "refunded",
+      method: "Credit Card",
+    },
+  ]
+
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesFilter = filter === "all" || transaction.status === filter
+    const matchesSearch =
+      transaction.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.service.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesFilter && matchesSearch
+  })
+
+  return (
+    <div className="p-3 space-y-4 max-w-md mx-auto">
+      <div className="pt-8">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" className="w-full bg-transparent">
-            <Calendar className="h-4 w-4 mr-2" />
-            View Calendar Availability
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Transaction History</h1>
+            <p className="text-gray-600 mt-1">All payment records</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <Card className="border-0 shadow-sm">
+        <CardContent className="pt-6 space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search transactions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+          <div className="flex space-x-2">
+            {["all", "completed", "pending", "refunded"].map((status) => (
+              <Button
+                key={status}
+                variant={filter === status ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter(status)}
+                className={filter !== status ? "bg-transparent" : ""}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Transaction List */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-medium">Transactions ({filteredTransactions.length})</CardTitle>
+            <Button variant="ghost" size="sm">
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {filteredTransactions.map((transaction) => (
+            <div
+              key={transaction.id}
+              className="flex items-center justify-between p-3 rounded-lg border border-gray-100"
+            >
+              <div>
+                <p className="font-medium text-gray-900">{transaction.client}</p>
+                <p className="text-sm text-gray-600">{transaction.service}</p>
+                <p className="text-xs text-gray-500">
+                  {new Date(transaction.date).toLocaleDateString()} • {transaction.method}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="font-semibold text-gray-900">${transaction.amount}</p>
+                <Badge
+                  variant="secondary"
+                  className={
+                    transaction.status === "completed"
+                      ? "bg-green-100 text-green-700"
+                      : transaction.status === "pending"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-red-100 text-red-700"
+                  }
+                >
+                  {transaction.status}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Export Options */}
+      <div className="grid grid-cols-2 gap-3">
+        <Button variant="outline" className="bg-transparent">
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+        <Button variant="outline" className="bg-transparent">
+          <FileText className="h-4 w-4 mr-2" />
+          Generate Report
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// Business Analytics Component
+function BusinessAnalytics({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="p-3 space-y-4 max-w-md mx-auto">
+      <div className="pt-8">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" className="w-full bg-transparent">
-            <Send className="h-4 w-4 mr-2" />
-            Send Bulk Response
-          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">Business Analytics</h1>
+            <p className="text-gray-600 mt-1">Performance insights</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Key Metrics */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">Key Performance Indicators</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <BarChart3 className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-blue-900">89%</p>
+              <p className="text-sm text-blue-700">Session Completion Rate</p>
+            </div>
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <TrendingUp className="h-6 w-6 text-green-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-green-900">76%</p>
+              <p className="text-sm text-green-700">Client Retention Rate</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-purple-50 rounded-lg">
+              <DollarSign className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-purple-900">$76</p>
+              <p className="text-sm text-purple-700">Avg Session Value</p>
+            </div>
+            <div className="text-center p-3 bg-orange-50 rounded-lg">
+              <Users className="h-6 w-6 text-orange-600 mx-auto mb-2" />
+              <p className="text-2xl font-bold text-orange-900">24</p>
+              <p className="text-sm text-orange-700">Active Clients</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Revenue Trends */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-medium">Revenue Trends</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-3">
+            {[
+              { month: "December", revenue: 1650, growth: 12, sessions: 22 },
+              { month: "November", revenue: 1470, growth: 8, sessions: 19 },
+              { month: "October", revenue: 1360, growth: -3, sessions: 18 },
+              { month: "September", revenue: 1400, growth: 15, sessions: 20 },
+            ].map((month, index) => (
+              <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                <div>
+                  <p className="font-medium text-gray-900">{month.month}</p>
+                  <p className="text-sm text-gray-600">{month.sessions}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">{month.revenue}</p>
+                  <p className="text-xs text-gray-500">
+                    {month.growth > 0 ? (
+                      <span className="text-green-600 flex items-center">
+                        <TrendingUp className="h-3 w-3 mr-1" />+{month.growth}%
+                      </span>
+                    ) : (
+                      <span className="text-red-600 flex items-center">
+                        <TrendingDown className="h-3 w-3 mr-1" />
+                        {month.growth}%
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
